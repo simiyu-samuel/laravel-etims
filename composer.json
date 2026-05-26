@@ -1,0 +1,78 @@
+{
+    "name": "flavian-ndunda/laravel-etims",
+    "description": "Production-grade Laravel SDK for Kenya's KRA eTIMS / Gava Connect API. Handles invoice submission, queue-based sync, retries, multi-tenancy, and offline resilience.",
+    "type": "library",
+    "keywords": [
+        "laravel",
+        "etims",
+        "kra",
+        "kenya",
+        "gava-connect",
+        "invoice",
+        "tax",
+        "fiscal",
+        "pos",
+        "erp"
+    ],
+    "homepage": "https://github.com/flavian-ndunda/laravel-etims",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Flavian Ndunda",
+            "email": "flavianndunda@gmail.com",
+            "homepage": "https://flavytechsolutions.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "illuminate/support": "^11.0",
+        "illuminate/http": "^11.0",
+        "illuminate/queue": "^11.0",
+        "illuminate/events": "^11.0",
+        "illuminate/database": "^11.0",
+        "illuminate/console": "^11.0",
+        "guzzlehttp/guzzle": "^7.8",
+        "spatie/laravel-package-tools": "^1.16"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0",
+        "pestphp/pest": "^2.0",
+        "pestphp/pest-plugin-laravel": "^2.0",
+        "mockery/mockery": "^1.6",
+        "larastan/larastan": "^2.9",
+        "phpstan/phpstan": "^1.10",
+        "friendsofphp/php-cs-fixer": "^3.40"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flavytech\\Etims\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Flavytech\\Etims\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "./vendor/bin/pest",
+        "test-coverage": "./vendor/bin/pest --coverage",
+        "analyse": "./vendor/bin/phpstan analyse",
+        "format": "./vendor/bin/php-cs-fixer fix --allow-risky=yes"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Flavytech\\Etims\\EtimsServiceProvider"
+            ],
+            "aliases": {
+                "Etims": "Flavytech\\Etims\\Facades\\Etims"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
