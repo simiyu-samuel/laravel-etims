@@ -1,5 +1,5 @@
 {
-    "name": "flavian-ndunda/laravel-etims",
+    "name": "flavytech/laravel-etims",
     "description": "Production-grade Laravel SDK for Kenya's KRA eTIMS / Gava Connect API. Handles invoice submission, queue-based sync, retries, multi-tenancy, and offline resilience.",
     "type": "library",
     "keywords": [
