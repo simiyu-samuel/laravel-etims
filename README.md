@@ -103,27 +103,28 @@ use Flavytech\Etims\DTOs\InvoiceDTO;
 use Flavytech\Etims\DTOs\InvoiceLineDTO;
 
 $invoice = InvoiceDTO::make([
-    'invoice_number' => 'INV-2024-001',
-    'supplier_pin'   => config('etims.credentials.pin'),
-    'buyer_pin'      => 'P000000000B',    // buyer's KRA PIN
-    'buyer_name'     => 'Acme Ltd',
-    'total_amount'   => 11600.00,
-    'vat_amount'     => 1600.00,
-    'taxable_amount' => 10000.00,
-    'invoice_date'   => now()->toDateString(),
-    'invoice_type'   => 'S',              // S = Sale
-    'payment_type'   => 'CASH',
-    'items'          => [
+    'invcNo'       => 'INV-2024-001',
+    'tpin'         => config('etims.credentials.pin'),
+    'custTpin'     => 'P000000000B',    // buyer's KRA PIN
+    'custNm'       => 'Acme Ltd',
+    'totAmt'       => 11600.00,
+    'vatAmt'       => 1600.00,
+    'taxblAmt'     => 10000.00,
+    'salesDt'      => now()->toDateString(),
+    'cfmDt'        => now()->toDateString(),
+    'rcptTyCd'     => 'S',              // S = Sale
+    'pmtTyCd'      => '01',
+    'itemList'     => [
         InvoiceLineDTO::make([
-            'item_number'    => 1,
-            'item_code'      => 'ITEM-001',
-            'item_name'      => 'Widget Pro',
-            'quantity'       => 2,
-            'unit_price'     => 5000.00,
-            'taxable_amount' => 10000.00,
-            'vat_amount'     => 1600.00,
-            'total_amount'   => 11600.00,
-            'tax_type_code'  => 'A',       // A = Standard 16% VAT
+            'itemSeq'    => 1,
+            'itemCd'     => 'ITEM-001',
+            'itemNm'     => 'Widget Pro',
+            'qty'        => 2,
+            'prc'        => 5000.00,
+            'taxblAmt'   => 10000.00,
+            'taxAmt'     => 1600.00,
+            'totAmt'     => 11600.00,
+            'taxTyCd'    => 'A',       // A = Standard 16% VAT
         ]),
     ],
 ]);
@@ -136,6 +137,8 @@ if ($response->isSuccessful()) {
     $qrCode        = $response->qrCode;
 }
 ```
+
+`InvoiceDTO::make()` accepts both the original snake_case keys and the KRA field names shown above.
 
 ### Queuing an Invoice (Recommended for Most Cases)
 
