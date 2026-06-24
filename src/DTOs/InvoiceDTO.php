@@ -29,7 +29,7 @@ use Flavytech\Etims\Exceptions\EtimsValidationException;
  *       'vat_amount'      => 1800.00,
  *       'taxable_amount'  => 10000.00,
  *       'invoice_date'    => '2024-01-15',
- *       'invoice_type'    => 'S', // S=Sale, C=Credit Note, D=Debit Note
+ *       'invoice_type'    => 'S', // S=Sale, R=Credit Note, D=Debit Note
  *       'payment_type'    => 'CASH',
  *       'items'           => [...InvoiceLineDTO objects],
  *   ]);
@@ -49,7 +49,7 @@ final class InvoiceDTO
         public readonly float $exemptAmount,
         public readonly string $currency,
         public readonly string $invoiceDate,
-        public readonly string $invoiceType,       // S=Sale, C=Credit Note, D=Debit Note
+        public readonly string $invoiceType,       // S=Sale, R=Credit Note, D=Debit Note
         public readonly string $paymentType,       // CASH, CREDIT, MPESA, BANK, etc.
         public readonly array $items,
         public readonly ?string $originalInvoiceNumber = null, // for credit/debit notes
@@ -107,6 +107,10 @@ final class InvoiceDTO
         };
 
         $invoiceDate = (string) $get($data, ['invoice_date', 'cfm_dt', 'cfmDt', 'sales_dt', 'salesDt']);
+        $invoiceType = (string) $get($data, ['invoice_type', 'rcptTyCd'], 'S');
+        if ($invoiceType === 'C') {
+            $invoiceType = 'R';
+        }
         $buyerPin = (string) $get($data, ['buyer_pin', 'cust_tpin', 'custTpin', 'custTin']);
         $buyerName = $get($data, ['buyer_name', 'cust_nm', 'custNm']);
         $items = $get($data, ['items', 'itemList'], []);
@@ -139,7 +143,7 @@ final class InvoiceDTO
             exemptAmount:          (float) $get($data, ['exempt_amount', 'nontaxblAmt'], 0.0),
             currency:              (string) $get($data, ['currency', 'curCd'], 'KES'),
             invoiceDate:           $invoiceDate,
-            invoiceType:           (string) $get($data, ['invoice_type', 'rcptTyCd'], 'S'),
+            invoiceType:           $invoiceType,
             paymentType:           (string) $get($data, ['payment_type', 'pmtTyCd'], 'CASH'),
             items:                 $items,
             originalInvoiceNumber: (string) $get($data, ['original_invoice_number', 'orgInvcNo'], '') ?: null,
@@ -293,8 +297,13 @@ final class InvoiceDTO
             );
         }
 
-        if (!in_array($data['invoice_type'] ?? $data['rcptTyCd'] ?? 'S', ['S', 'C', 'D'], true)) {
-            throw new EtimsValidationException('invoice_type must be S (Sale), C (Credit Note), or D (Debit Note).');
+        $invoiceType = $data['invoice_type'] ?? $data['rcptTyCd'] ?? 'S';
+        if ($invoiceType === 'C') {
+            $invoiceType = 'R';
+        }
+
+        if (!in_array($invoiceType, ['S', 'R', 'D'], true)) {
+            throw new EtimsValidationException('invoice_type must be S (Sale), R (Credit Note), or D (Debit Note).');
         }
     }
 }

@@ -200,7 +200,7 @@ class EtimsManager
      * Submit a credit note synchronously.
      *
      * A credit note reverses or partially reverses a previously submitted invoice.
-     * Internally converts the CreditNoteDTO to an InvoiceDTO with type 'C'.
+     * Internally converts the CreditNoteDTO to an InvoiceDTO with type 'R'.
      *
      * Usage — Full reversal:
      *   $credit = CreditNoteDTO::reversal($originalInvoice, 'Goods returned', 'CN-001');

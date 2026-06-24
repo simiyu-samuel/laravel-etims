@@ -48,6 +48,20 @@ it('throws a validation exception for invalid invoice type', function () {
     ]);
 })->throws(EtimsValidationException::class, 'invoice_type must be S');
 
+it('normalizes credit note invoice type alias C to R', function () {
+    $invoice = InvoiceDTO::make([
+        'invoice_number' => 'CN-001',
+        'supplier_pin'   => 'P000000000A',
+        'buyer_pin'      => 'P000000000B',
+        'total_amount'   => 100.00,
+        'vat_amount'     => 16.00,
+        'invoice_date'   => '2024-01-15',
+        'invoice_type'   => 'C',
+    ]);
+
+    expect($invoice->invoiceType)->toBe('R');
+});
+
 it('serializes to correct KRA payload format', function () {
     $invoice = InvoiceDTO::make([
         'invcNo'       => 'INV-001',

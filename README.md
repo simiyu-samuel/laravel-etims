@@ -216,7 +216,7 @@ Etims::retryFailedInvoice($invoice->id);
 | Code | Description | Use Case |
 |---|---|---|
 | `S` | Sale | Standard sales invoice |
-| `C` | Credit Note | Refund / reversal of a sale |
+| `R` | Credit Note | Refund / reversal of a sale |
 | `D` | Debit Note | Additional charge on a sale |
 
 ## Tax Type Codes
