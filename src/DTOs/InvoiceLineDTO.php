@@ -9,10 +9,11 @@ namespace Flavytech\Etims\DTOs;
  *
  * Represents a single line item within an invoice.
  *
- * KRA requires each item to carry its own tax classification code (taxTyCd),
- * which determines which VAT rate applies. The SDK does not auto-calculate
- * taxes — the host application is responsible for correct tax classification,
- * as this depends on business-specific rules.
+ * KRA's payload uses OSCU/eTIMS field names, so this DTO keeps the SDK's
+ * convenience names at the boundary while serializing to the exact wire format.
+ *
+ * The SDK does not auto-calculate taxes — the host application is responsible
+ * for correct tax classification and totals.
  *
  * Tax Type Codes (KRA):
  *   A = Standard rate (16% VAT)
@@ -51,6 +52,10 @@ final class InvoiceLineDTO
         public readonly string $taxTypeCode,  // A, B, C, D, E
         public readonly ?string $itemCategory = null,
         public readonly ?string $barcode = null,
+        public readonly ?float $supplyAmount = null,
+        public readonly float $discountRate = 0.0,
+        public readonly float $packageQuantity = 1.0,
+        public readonly ?string $packageUnitCode = null,
     ) {}
 
     /**
@@ -58,20 +63,34 @@ final class InvoiceLineDTO
      */
     public static function make(array $data): self
     {
+        $get = static function (array $data, array $keys, mixed $default = null): mixed {
+            foreach ($keys as $key) {
+                if (array_key_exists($key, $data)) {
+                    return $data[$key];
+                }
+            }
+
+            return $default;
+        };
+
         return new self(
-            itemNumber:    (int) $data['item_number'],
-            itemCode:      $data['item_code'],
-            itemName:      $data['item_name'],
-            quantity:      (float) $data['quantity'],
-            unitOfMeasure: $data['unit_of_measure'] ?? 'EA', // EA = Each
-            unitPrice:     (float) $data['unit_price'],
-            discountAmount: (float) ($data['discount_amount'] ?? 0.0),
-            taxableAmount:  (float) $data['taxable_amount'],
-            vatAmount:      (float) $data['vat_amount'],
-            totalAmount:    (float) $data['total_amount'],
-            taxTypeCode:    $data['tax_type_code'] ?? 'A',
-            itemCategory:   $data['item_category'] ?? null,
-            barcode:        $data['barcode'] ?? null,
+            itemNumber:    (int) $get($data, ['item_number', 'itemSeq']),
+            itemCode:      (string) $get($data, ['item_code', 'itemCd']),
+            itemName:      (string) $get($data, ['item_name', 'itemNm']),
+            quantity:      (float) $get($data, ['quantity', 'qty']),
+            unitOfMeasure: (string) $get($data, ['unit_of_measure', 'qtyUnitCd'], 'EA'),
+            unitPrice:     (float) $get($data, ['unit_price', 'prc']),
+            discountAmount: (float) $get($data, ['discount_amount', 'dcAmt'], 0.0),
+            taxableAmount:  (float) $get($data, ['taxable_amount', 'taxblAmt']),
+            vatAmount:      (float) $get($data, ['vat_amount', 'taxAmt', 'vatAmt']),
+            totalAmount:    (float) $get($data, ['total_amount', 'totAmt']),
+            taxTypeCode:    (string) $get($data, ['tax_type_code', 'taxTyCd'], 'A'),
+            itemCategory:   $get($data, ['item_category', 'itemClsCd']),
+            barcode:        $get($data, ['barcode', 'bcd']),
+            supplyAmount:   $get($data, ['supply_amount', 'splyAmt']),
+            discountRate:   (float) $get($data, ['discount_rate', 'dcRt'], 0.0),
+            packageQuantity: (float) $get($data, ['package_quantity', 'pkg'], 1.0),
+            packageUnitCode: $get($data, ['package_unit_code', 'pkgUnitCd']),
         );
     }
 
@@ -82,6 +101,8 @@ final class InvoiceLineDTO
      */
     public function toKraPayload(): array
     {
+        $supplyAmount = $this->supplyAmount ?? max(0.0, $this->taxableAmount + $this->discountAmount);
+
         return [
             'itemSeq'     => $this->itemNumber,
             'itemCd'      => $this->itemCode,
@@ -89,6 +110,8 @@ final class InvoiceLineDTO
             'qty'         => $this->quantity,
             'qtyUnitCd'   => $this->unitOfMeasure,
             'prc'         => $this->unitPrice,
+            'splyAmt'     => $supplyAmount,
+            'dcRt'        => $this->discountRate,
             'dcAmt'       => $this->discountAmount,
             'taxblAmt'    => $this->taxableAmount,
             'vatAmt'      => $this->vatAmount,
@@ -97,6 +120,8 @@ final class InvoiceLineDTO
             'taxTyCd'     => $this->taxTypeCode,
             'itemClsCd'   => $this->itemCategory,
             'bcd'         => $this->barcode,
+            'pkg'         => $this->packageQuantity,
+            'pkgUnitCd'   => $this->packageUnitCode,
         ];
     }
 }
