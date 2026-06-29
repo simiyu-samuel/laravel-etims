@@ -27,7 +27,7 @@ function makeTestInvoice(string $number = 'INV-2024-001'): InvoiceDTO
         'vat_amount'     => 1600.00,
         'invoice_date'   => '2024-01-15',
         'invoice_type'   => 'S',
-        'payment_type'   => 'CASH',
+        'payment_type'   => '01',
     ]);
 }
 

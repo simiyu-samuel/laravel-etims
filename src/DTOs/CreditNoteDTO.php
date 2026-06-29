@@ -119,7 +119,7 @@ final class CreditNoteDTO
             creditDate:            $data['credit_date'] ?? now()->toDateString(),
             reason:                $data['reason'],
             currency:              $data['currency'] ?? 'KES',
-            paymentType:           $data['payment_type'] ?? 'CASH',
+            paymentType:           $data['payment_type'] ?? '01',
             items:                 $data['items'] ?? [],
             buyerName:             $data['buyer_name'] ?? null,
             branchId:              $data['branch_id'] ?? null,
@@ -127,7 +127,7 @@ final class CreditNoteDTO
     }
 
     /**
-     * Convert to an InvoiceDTO with type 'C' (Credit Note).
+     * Convert to an InvoiceDTO with type 'R' (Credit Note).
      *
      * This is what gets submitted to KRA. The credit note is just a
      * specially-typed invoice with a reference to the original.
@@ -144,7 +144,7 @@ final class CreditNoteDTO
             exemptAmount:          0.0,
             currency:              $this->currency,
             invoiceDate:           $this->creditDate,
-            invoiceType:           'C', // C = Credit Note
+            invoiceType:           'R', // R = Credit Note
             paymentType:           $this->paymentType,
             items:                 $this->items,
             originalInvoiceNumber: $this->originalInvoiceNumber,
