@@ -178,6 +178,46 @@ it('accepts KRA-style keys in the InvoiceDTO factory', function () {
         ->and($invoice->invoiceDate)->toBe('2024-01-15');
 });
 
+it('normalizes snake_case receipt keys into KRA payload keys', function () {
+    $invoice = InvoiceDTO::make([
+        'invoice_number' => 'INV-REC-001',
+        'supplier_pin'   => 'P000000000A',
+        'buyer_pin'      => 'P000000000B',
+        'buyer_name'     => 'Test Buyer',
+        'total_amount'   => 11600.00,
+        'vat_amount'     => 1600.00,
+        'invoice_date'   => '2024-01-15',
+        'receipt'        => [
+            'cust_tin' => 'P000000000B',
+            'cust_nm' => 'Test Buyer',
+            'prchr_acptc_yn' => 'Y',
+            'top_msg' => 'Thanks',
+            'btm_msg' => 'See you again',
+        ],
+        'items'          => [
+            InvoiceLineDTO::make([
+                'item_number' => 1,
+                'item_code' => 'ITEM-001',
+                'item_name' => 'Widget',
+                'quantity' => 1,
+                'unit_price' => 11600.00,
+                'taxable_amount' => 10000.00,
+                'vat_amount' => 1600.00,
+                'total_amount' => 11600.00,
+                'tax_type_code' => 'A',
+            ]),
+        ],
+    ]);
+
+    expect($invoice->toKraPayload()['receipt'])->toMatchArray([
+        'custTin' => 'P000000000B',
+        'custNm' => 'Test Buyer',
+        'prchrAcptcYn' => 'Y',
+        'topMsg' => 'Thanks',
+        'btmMsg' => 'See you again',
+    ]);
+});
+
 it('generates a deterministic idempotency key', function () {
     $invoiceA = InvoiceDTO::make([
         'invoice_number' => 'INV-001',

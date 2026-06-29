@@ -122,16 +122,9 @@ final class InvoiceDTO
         }
 
         $receipt = $get($data, ['receipt'], null);
-
-        if (!is_array($receipt)) {
-            $receipt = [
-                'custTin' => $buyerPin,
-                'custNm' => $buyerName,
-                'prchrAcptcYn' => (string) $get($data, ['prchr_acceptance_yn', 'prchrAcptcYn'], 'N'),
-                'topMsg' => $get($data, ['receipt_top_msg', 'receiptTopMsg'], 'Thank You!'),
-                'btmMsg' => $get($data, ['receipt_bottom_msg', 'receiptBtmMsg'], 'Come Again!'),
-            ];
-        }
+        $receipt = is_array($receipt)
+            ? self::normalizeReceipt($receipt, $buyerPin, $buyerName, $data)
+            : self::normalizeReceipt([], $buyerPin, $buyerName, $data);
 
         return new self(
             invoiceNumber:         (string) $get($data, ['invoice_number', 'invcNo']),
@@ -206,13 +199,9 @@ final class InvoiceDTO
     public function toKraPayload(): array
     {
         $items = array_map(fn(InvoiceLineDTO $item) => $item->toKraPayload(), $this->items);
-        $receipt = $this->receipt ?? [
-            'custTin' => $this->buyerPin,
-            'custNm' => $this->buyerName,
-            'prchrAcptcYn' => $this->purchaseAcceptanceYn,
-            'topMsg' => 'Thank You!',
-            'btmMsg' => 'Come Again!',
-        ];
+        $receipt = $this->receipt ?? self::normalizeReceipt([], $this->buyerPin, $this->buyerName, [
+            'prchr_acceptance_yn' => $this->purchaseAcceptanceYn,
+        ]);
 
         return [
             'invcNo'       => $this->invoiceNumber,
@@ -256,6 +245,53 @@ final class InvoiceDTO
             'regrNm'       => $this->regrNm,
             'modrId'       => $this->modrId,
             'modrNm'       => $this->modrNm,
+        ];
+    }
+
+    /**
+     * Normalize receipt input to KRA keys.
+     *
+     * The public API can accept either snake_case or KRA-style keys, but the
+     * serialized payload must always use the OSCU field names.
+     *
+     * @param array<string, mixed> $receipt
+     * @param array<string, mixed> $source
+     * @return array<string, mixed>
+     */
+    private static function normalizeReceipt(
+        array $receipt,
+        string $buyerPin,
+        mixed $buyerName,
+        array $source = []
+    ): array {
+        $get = static function (array $data, array $keys, mixed $default = null): mixed {
+            foreach ($keys as $key) {
+                if (array_key_exists($key, $data)) {
+                    return $data[$key];
+                }
+            }
+
+            return $default;
+        };
+
+        return [
+            'custTin' => (string) $get($receipt, ['custTin', 'cust_tin', 'cust_tpin'], $buyerPin),
+            'custNm' => $get($receipt, ['custNm', 'cust_nm', 'cust_name'], $buyerName),
+            'prchrAcptcYn' => (string) $get(
+                $receipt,
+                ['prchrAcptcYn', 'prchr_acptc_yn', 'prchr_acceptance_yn'],
+                (string) $get($source, ['prchrAcptcYn', 'prchr_acceptance_yn', 'prchr_acptc_yn'], 'N')
+            ),
+            'topMsg' => $get(
+                $receipt,
+                ['topMsg', 'top_msg', 'receipt_top_msg'],
+                $get($source, ['receipt_top_msg', 'receiptTopMsg'], 'Thank You!')
+            ),
+            'btmMsg' => $get(
+                $receipt,
+                ['btmMsg', 'btm_msg', 'receipt_bottom_msg'],
+                $get($source, ['receipt_bottom_msg', 'receiptBtmMsg'], 'Come Again!')
+            ),
         ];
     }
 

@@ -103,28 +103,74 @@ use Flavytech\Etims\DTOs\InvoiceDTO;
 use Flavytech\Etims\DTOs\InvoiceLineDTO;
 
 $invoice = InvoiceDTO::make([
-    'invoice_number' => 'INV-2024-001',
-    'supplier_pin'   => config('etims.credentials.pin'),
-    'buyer_pin'      => 'P000000000B',    // buyer's KRA PIN
-    'buyer_name'     => 'Acme Ltd',
-    'total_amount'   => 11600.00,
-    'vat_amount'     => 1600.00,
-    'taxable_amount' => 10000.00,
-    'sales_dt'       => now()->toDateString(),
-    'cfm_dt'         => now()->toDateString(),
-    'invoice_type'   => 'S',              // S = Sale
-    'payment_type'   => '01',
-    'items'          => [
+    'invoice_number'        => 'INV-2024-001',
+    'supplier_pin'          => config('etims.credentials.pin'),
+    'buyer_pin'             => 'P000000000B',
+    'buyer_name'            => 'Acme Ltd',
+    'total_amount'          => 11600.00,
+    'vat_amount'            => 1600.00,
+    'taxable_amount'        => 10000.00,
+    'exempt_amount'         => 0.00,
+    'currency'              => 'KES',
+    'invoice_date'          => now()->toDateString(),
+    'invoice_type'          => 'S',
+    'payment_type'          => '01',
+    'original_invoice_number' => null,
+    'branch_id'             => null,
+    'remarks'               => 'POS sale',
+    'idempotency_key'       => null,
+    'sales_type_code'       => 'N',
+    'sales_status_code'     => '02',
+    'confirmation_date'     => now()->toDateString(),
+    'sales_date'            => now()->toDateString(),
+    'stock_release_date'    => now()->toDateString(),
+    'total_item_count'      => 1,
+    'taxable_amount_a'      => 0.00,
+    'taxable_amount_b'      => 10000.00,
+    'taxable_amount_c'      => 0.00,
+    'taxable_amount_d'      => 0.00,
+    'taxable_amount_e'      => 0.00,
+    'tax_rate_a'            => 0.00,
+    'tax_rate_b'            => 16.00,
+    'tax_rate_c'            => 0.00,
+    'tax_rate_d'            => 0.00,
+    'tax_rate_e'            => 0.00,
+    'tax_amount_a'          => 0.00,
+    'tax_amount_b'          => 1600.00,
+    'tax_amount_c'          => 0.00,
+    'tax_amount_d'          => 0.00,
+    'tax_amount_e'          => 0.00,
+    'purchase_acceptance_yn' => 'N',
+    'receipt'               => [
+        'cust_tin' => 'P000000000B',
+        'cust_nm' => 'Acme Ltd',
+        'prchr_acptc_yn' => 'N',
+        'top_msg' => 'Thank You!',
+        'btm_msg' => 'Come Again!',
+    ],
+    'regr_id'               => 'admin',
+    'regr_nm'               => 'Admin User',
+    'modr_id'               => 'admin',
+    'modr_nm'               => 'Admin User',
+    'items'                 => [
         InvoiceLineDTO::make([
-            'item_number'   => 1,
-            'item_code'     => 'ITEM-001',
-            'item_name'     => 'Widget Pro',
-            'quantity'      => 2,
-            'unit_price'    => 5000.00,
-            'taxable_amount'=> 10000.00,
-            'vat_amount'    => 1600.00,
-            'total_amount'  => 11600.00,
-            'tax_type_code' => 'A',       // A = Standard 16% VAT
+            'item_number'      => 1,
+            'item_code'        => 'ITEM-001',
+            'item_name'        => 'Widget Pro',
+            'quantity'         => 2,
+            'unit_of_measure'  => 'EA',
+            'unit_price'       => 5000.00,
+            'discount_amount'  => 0.00,
+            'taxable_amount'   => 10000.00,
+            'vat_amount'       => 1600.00,
+            'total_amount'     => 11600.00,
+            'tax_type_code'    => 'A',
+            'item_category'    => '10101501',
+            'barcode'          => null,
+            'supply_amount'    => 10000.00,
+            'discount_rate'    => 0.00,
+            'package_quantity' => 1,
+            'package_unit_code'=> 'EA',
         ]),
     ],
 ]);
@@ -138,7 +184,7 @@ if ($response->isSuccessful()) {
 }
 ```
 
-`InvoiceDTO::make()` accepts both the clean snake_case API and the KRA field names internally.
+`InvoiceDTO::make()` accepts both the clean snake_case API and the KRA field names internally, but the recommended public API is snake_case.
 
 ### Queuing an Invoice (Recommended for Most Cases)
 
