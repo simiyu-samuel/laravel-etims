@@ -103,28 +103,28 @@ use Flavytech\Etims\DTOs\InvoiceDTO;
 use Flavytech\Etims\DTOs\InvoiceLineDTO;
 
 $invoice = InvoiceDTO::make([
-    'invcNo'       => 'INV-2024-001',
-    'tpin'         => config('etims.credentials.pin'),
-    'custTpin'     => 'P000000000B',    // buyer's KRA PIN
-    'custNm'       => 'Acme Ltd',
-    'totAmt'       => 11600.00,
-    'vatAmt'       => 1600.00,
-    'taxblAmt'     => 10000.00,
-    'salesDt'      => now()->toDateString(),
-    'cfmDt'        => now()->toDateString(),
-    'rcptTyCd'     => 'S',              // S = Sale
-    'pmtTyCd'      => '01',
-    'itemList'     => [
+    'invoice_number' => 'INV-2024-001',
+    'supplier_pin'   => config('etims.credentials.pin'),
+    'buyer_pin'      => 'P000000000B',    // buyer's KRA PIN
+    'buyer_name'     => 'Acme Ltd',
+    'total_amount'   => 11600.00,
+    'vat_amount'     => 1600.00,
+    'taxable_amount' => 10000.00,
+    'sales_dt'       => now()->toDateString(),
+    'cfm_dt'         => now()->toDateString(),
+    'invoice_type'   => 'S',              // S = Sale
+    'payment_type'   => '01',
+    'items'          => [
         InvoiceLineDTO::make([
-            'itemSeq'    => 1,
-            'itemCd'     => 'ITEM-001',
-            'itemNm'     => 'Widget Pro',
-            'qty'        => 2,
-            'prc'        => 5000.00,
-            'taxblAmt'   => 10000.00,
-            'taxAmt'     => 1600.00,
-            'totAmt'     => 11600.00,
-            'taxTyCd'    => 'A',       // A = Standard 16% VAT
+            'item_number'   => 1,
+            'item_code'     => 'ITEM-001',
+            'item_name'     => 'Widget Pro',
+            'quantity'      => 2,
+            'unit_price'    => 5000.00,
+            'taxable_amount'=> 10000.00,
+            'vat_amount'    => 1600.00,
+            'total_amount'  => 11600.00,
+            'tax_type_code' => 'A',       // A = Standard 16% VAT
         ]),
     ],
 ]);
@@ -138,7 +138,7 @@ if ($response->isSuccessful()) {
 }
 ```
 
-`InvoiceDTO::make()` accepts both the original snake_case keys and the KRA field names shown above.
+`InvoiceDTO::make()` accepts both the clean snake_case API and the KRA field names internally.
 
 ### Queuing an Invoice (Recommended for Most Cases)
 
@@ -233,12 +233,12 @@ Etims::retryFailedInvoice($invoice->id);
 
 | Code | Description |
 |---|---|
-| `CASH` | Cash payment |
-| `CREDIT` | Credit terms |
-| `MPESA` | M-Pesa mobile money |
-| `BANK` | Bank transfer |
-| `CHEQUE` | Cheque |
-| `OTHER` | Other payment methods |
+| `01` | Cash payment |
+| `02` | Credit terms |
+| `03` | M-Pesa mobile money |
+| `04` | Bank transfer |
+| `05` | Cheque |
+| `06` | Other payment methods |
 
 ---
 

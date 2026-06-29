@@ -119,7 +119,7 @@ final class CreditNoteDTO
             creditDate:            $data['credit_date'] ?? now()->toDateString(),
             reason:                $data['reason'],
             currency:              $data['currency'] ?? 'KES',
-            paymentType:           $data['payment_type'] ?? 'CASH',
+            paymentType:           $data['payment_type'] ?? '01',
             items:                 $data['items'] ?? [],
             buyerName:             $data['buyer_name'] ?? null,
             branchId:              $data['branch_id'] ?? null,

@@ -30,7 +30,7 @@ use Flavytech\Etims\Exceptions\EtimsValidationException;
  *       'taxable_amount'  => 10000.00,
  *       'invoice_date'    => '2024-01-15',
  *       'invoice_type'    => 'S', // S=Sale, R=Credit Note, D=Debit Note
- *       'payment_type'    => 'CASH',
+ *       'payment_type'    => '01',
  *       'items'           => [...InvoiceLineDTO objects],
  *   ]);
  */
@@ -50,7 +50,7 @@ final class InvoiceDTO
         public readonly string $currency,
         public readonly string $invoiceDate,
         public readonly string $invoiceType,       // S=Sale, R=Credit Note, D=Debit Note
-        public readonly string $paymentType,       // CASH, CREDIT, MPESA, BANK, etc.
+        public readonly string $paymentType,       // 01, 02, MPESA, BANK, etc.
         public readonly array $items,
         public readonly ?string $originalInvoiceNumber = null, // for credit/debit notes
         public readonly ?string $buyerName = null,
@@ -144,7 +144,7 @@ final class InvoiceDTO
             currency:              (string) $get($data, ['currency', 'curCd'], 'KES'),
             invoiceDate:           $invoiceDate,
             invoiceType:           $invoiceType,
-            paymentType:           (string) $get($data, ['payment_type', 'pmtTyCd'], 'CASH'),
+            paymentType:           (string) $get($data, ['payment_type', 'pmtTyCd'], '01'),
             items:                 $items,
             originalInvoiceNumber: (string) $get($data, ['original_invoice_number', 'orgInvcNo'], '') ?: null,
             buyerName:             $buyerName,
